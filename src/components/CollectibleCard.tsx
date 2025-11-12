@@ -1,6 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Lock, Eye, ShoppingCart } from "lucide-react";
+import { useAccount } from 'wagmi';
+import { toast } from "@/hooks/use-toast";
 
 interface CollectibleCardProps {
   title: string;
@@ -11,8 +14,32 @@ interface CollectibleCardProps {
 }
 
 const CollectibleCard = ({ title, image, owner, verified, encrypted }: CollectibleCardProps) => {
+  const { address, isConnected } = useAccount();
+
+  const handleViewDetails = () => {
+    toast({
+      title: "Item Details",
+      description: `Viewing encrypted metadata for ${title}`,
+    });
+  };
+
+  const handlePurchase = () => {
+    if (!isConnected) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet to purchase items",
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({
+      title: "Purchase Initiated",
+      description: `Starting secure transfer process for ${title}`,
+    });
+  };
+
   return (
-    <Card className="group relative overflow-hidden bg-card border-border hover:border-encryption transition-all duration-500 cursor-pointer">
+    <Card className="group relative overflow-hidden bg-card border-border hover:border-encryption transition-all duration-500">
       <div className="relative aspect-square overflow-hidden">
         <img
           src={image}
@@ -48,6 +75,25 @@ const CollectibleCard = ({ title, image, owner, verified, encrypted }: Collectib
             <span>Encrypted Metadata</span>
           </div>
         )}
+        <div className="flex gap-2 pt-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={handleViewDetails}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            View Details
+          </Button>
+          <Button 
+            size="sm" 
+            className="flex-1 bg-gradient-to-r from-primary to-luxury hover:opacity-90"
+            onClick={handlePurchase}
+          >
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Purchase
+          </Button>
+        </div>
       </div>
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
            style={{ boxShadow: 'inset 0 0 60px rgba(6, 182, 212, 0.2)' }} />
